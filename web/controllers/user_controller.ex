@@ -19,15 +19,27 @@ defmodule ActualEdlabDemo.UserController do
   def create(conn, %{"user" => user_params}) do
     changeset = User.changeset(%User{}, user_params)
 
-    if changeset.valid? do
-      Repo.insert(changeset)
+    cond do
+      pwd_and_confirm_dont_match?(user_params) ->
+        conn
+        |> put_flash(:error, ["Password and confirm do not match"])
+        |> redirect(to: user_path(conn, :new))
+      changeset.valid? ->
+        Repo.insert(changeset)
 
-      conn
-      |> put_flash(:info, "User created successfully.")
-      |> redirect(to: user_path(conn, :index))
-    else
-      render conn, "new.html", changeset: changeset
+        conn
+        |> put_flash(:info, "User created successfully.")
+        |> redirect(to: user_path(conn, :index))
+      true ->
+        render conn, "new.html", changeset: changeset
     end
+  end
+
+  defp pwd_and_confirm_dont_match?(user_params) do
+    pwd = user_params |> Dict.get("password")
+    pwd_confirm = user_params |> Dict.get("password_confirm")
+    IO.puts "user_params: #{inspect user_params} pwd: #{pwd} pwd_confirm: #{pwd_confirm}"
+    pwd != pwd_confirm
   end
 
   def show(conn, %{"id" => id}) do
