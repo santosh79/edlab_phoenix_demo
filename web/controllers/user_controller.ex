@@ -26,7 +26,9 @@ defmodule ActualEdlabDemo.UserController do
       |> put_flash(:info, "User created successfully.")
       |> redirect(to: user_path(conn, :index))
     else
-      render conn, "new.html", changeset: changeset
+      conn
+      |> put_flash(:error, changeset.errors)
+      |> redirect(to: user_path(conn, :new))
     end
   end
 
