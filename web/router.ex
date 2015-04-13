@@ -15,7 +15,8 @@ defmodule ActualEdlabDemo.Router do
   scope "/", ActualEdlabDemo do
     pipe_through :browser # Use the default browser stack
 
-    get "/", PageController, :index
+    resources "/users", UserController
+    get "/", UserController, :index
   end
 
   # Other scopes may use custom stacks.
