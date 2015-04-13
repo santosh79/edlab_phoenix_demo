@@ -22,9 +22,18 @@ defmodule ActualEdlabDemo.User do
   If `params` are nil, an invalid changeset is returned
   with no validation performed.
   """
-  def changeset(model, params \\ nil) do
-    model
-    |> cast(params, @required_fields, @optional_fields)
+    def changeset(model, params \\ nil) do
+    result = model |> cast(params, @required_fields, @optional_fields)
+    validate_change(result, :password, fn(_, _) ->
+      pwd = result.params |> Dict.get("password")
+      pwd_confirm = result.params |> Dict.get("password_confirm")
+
+      if pwd == pwd_confirm do
+        []
+      else
+        ["Password and the confirmation do not match"]
+      end
+    end)
   end
 
   def hash_password(changeset) do
